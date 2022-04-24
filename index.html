@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script type="text/javascript">
+            var Versi="2.0.3";
+            var BackColors=["#2F4F4F","#FFE4C4"];
+            var ForeColors=["#DCDCDC","#000000"];
+            var HighForeColors=["#FA8072","#800000"];
+            var ButtonBackColors=["#778899","#DEB887"];
+            var SubmitButtonColor=["#3CB371","#00FF7F"];
+            var ColorIndex=0;
+            var MinWordLength=4;
+            var MaxWordLength=5;
+            var Dict=[];
+            var DictLength=0;
+            var DictURL="https://raw.githubusercontent.com/dolph/dictionary/c65f04b0b5b27a981f437b940cf62fe71320d5ec/popular.txt";
+            var QueryLetters="";
+            var CurrentWord="";
+            var ShuffleLimit=1000;
+            var Score=0.00;
+            var NumQuestions=0;
+            var Value=1.00;
+            var History=[];
+            var Loud=true;
+            var CorrectAudioURL="https://sourabhboruah.github.io/anagrams-game/correct.m4a";
+            var ErrorAudioURL="https://sourabhboruah.github.io/anagrams-game/error.m4a";
+            var SkipAudioURL="https://sourabhboruah.github.io/anagrams-game/skip.m4a";
+            var CorrectAudio;
+            var ErrorAudio;
+            var SkipAudio;
+            function ChangeMute() {
+                Loud=!Loud;
+                var target=document.getElementById("muteButton");
+                if(Loud)
+                    target.innerHTML="Mute";
+                else
+                    target.innerHTML="Unmute";
+            }
+            function GuessInputEnter(event) {
+                if (event.keyCode == 13) {
+                    SubmitGuess ();
+                }
+            }
+            function UpdateTable(str1,str2) {
+                var table=document.getElementById("historyTable");
+                var row=table.insertRow(1);
+                var cell=row.insertCell(0);
+                cell.innerHTML=NumQuestions.toString();
+                var cell=row.insertCell(1);
+                cell.innerHTML=Score.toFixed(3);
+                var cell=row.insertCell(2);
+                cell.innerHTML=QueryLetters;
+                var cell=row.insertCell(3);
+                cell.innerHTML=str1;
+                var cell=row.insertCell(4);
+                cell.innerHTML=str2;
+            }
+            function UserShuffle() {
+                ShuffleWord()
+                var target=document.getElementById("QueryLettersLabel");
+                target.innerHTML=QueryLetters;
+                var target=document.getElementById("guessInput");
+                target.value="";
+            }
+            function Skip() {
+                if(Loud)
+                    SkipAudio.play();
+                var target2=document.getElementById("scoreLabel");
+                target2.innerHTML=Score.toFixed(3)+"/"+NumQuestions.toString()+"="+(100*Score/NumQuestions).toFixed(0)+"%";
+                Value=1.00;
+                UpdateTable("<s>"+CurrentWord+"</s>","Skipped");
+                var target=document.getElementById("guessInput");
+                target.value="";
+                target.focus();
+                GameLoop();
+            }
+            function SubmitGuess () {
+                var target=document.getElementById("guessInput");
+                var guess=target.value;
+                if(guess.length==QueryLetters.length) {
+                    var str1 = guess.split('').sort().join(''); 
+                    var str2 = QueryLetters.split('').sort().join('');
+                    if (str1===str2) {
+                        if(Dict.includes(guess)) {
+                            if(Loud)
+                                CorrectAudio.play();
+                            Score=Score+Value;
+                            target2=document.getElementById("scoreLabel");
+                            target2.innerHTML=Score.toFixed(3)+"/"+NumQuestions.toString()+"="+(100*Score/NumQuestions).toFixed(0)+"%";
+                            Value=1.00;
+                            UpdateTable(guess,"Correct");
+                            target.value="";
+                            target.focus();
+                            GameLoop();
+                        }
+                        else {
+                            if(Loud)
+                                ErrorAudio.play();
+                            Value=Value/2;
+                            UpdateTable(guess,"Wrong");
+                            target.value="";
+                            target.focus();
+                        }
+                    }
+                    else
+                        if(Loud)
+                            ErrorAudio.play();
+                }
+                else
+                    if(Loud)
+                        ErrorAudio.play();
+            }
+            function GameLoop() {
+                ChooseWord()
+                ShuffleWord()
+                target=document.getElementById("QueryLettersLabel");
+                target.innerHTML=QueryLetters;
+            }
+            function ChooseWord() {
+                var count=0;
+                var cond=true;
+                do {
+                    CurrentWord=Dict[Math.floor((DictLength+1)*Math.random())];
+                    count=count+1;
+                    cond=CurrentWord.length>=MinWordLength && CurrentWord.length<=MaxWordLength
+                } while(count<=ShuffleLimit && !cond);
+                NumQuestions++;
+            }
+            function ShuffleWord() {
+                QueryLetters=CurrentWord;
+                QueryLetters=QueryLetters.split("");
+                var count=0;
+                do {
+                    for (let i = QueryLetters.length - 1; i > 0; i--) {
+                        let j = Math.floor(Math.random() * (i + 1));
+                        [QueryLetters[i], QueryLetters[j]] = [QueryLetters[j], QueryLetters[i]];
+                    }
+                    count++;
+                } while(count<=ShuffleLimit && Dict.includes(QueryLetters));
+                QueryLetters=QueryLetters.join("")
+            }
+            function DecreaseMinWordLength() {
+                if(MinWordLength>0) MinWordLength=MinWordLength-1;
+                var target=document.getElementById("MinWordLengthLabel");
+                target.innerHTML=MinWordLength.toString();
+            }
+            function IncreaseMinWordLength() {
+                if(MinWordLength<MaxWordLength) MinWordLength=MinWordLength+1;
+                var target=document.getElementById("MinWordLengthLabel");
+                target.innerHTML=MinWordLength.toString();
+            }
+            function DecreaseMaxWordLength() {
+                if(MaxWordLength>MinWordLength) MaxWordLength=MaxWordLength-1;
+                var target=document.getElementById("MaxWordLengthLabel");
+                target.innerHTML=MaxWordLength.toString();
+            }
+            function IncreaseMaxWordLength() {
+                MaxWordLength=MaxWordLength+1;
+                var target=document.getElementById("MaxWordLengthLabel");
+                target.innerHTML=MaxWordLength.toString();
+            }
+            function ChangeColor(){
+                if(ColorIndex==0)
+                    ColorIndex=1;
+                else if(ColorIndex==1)
+                    ColorIndex=0;
+                var target=document.getElementById("body");
+                target.style.backgroundColor=BackColors[ColorIndex];
+                target.style.color=ForeColors[ColorIndex];
+                target=document.querySelectorAll("button");
+                for(var i=0;i<target.length;i++) {
+                    target[i].style.backgroundColor=ButtonBackColors[ColorIndex];
+                    target[i].style.color=ForeColors[ColorIndex];
+                }
+                target=document.getElementById("QueryLettersLabel");
+                target.style.color=HighForeColors[ColorIndex];
+                target=document.getElementById("submitButton");
+                target.style.backgroundColor=SubmitButtonColor[ColorIndex];
+                target=document.getElementById("guessInput");
+                target.style.color=HighForeColors[ColorIndex];
+                target.style.backgroundColor=BackColors[ColorIndex];
+                target=document.getElementById("scoreLabel");
+                target.style.color=HighForeColors[ColorIndex];
+            }
+            async function FetchDictionary() {
+                const response = await fetch(DictURL);
+                const data = await response.text();
+                Dict=data.split("\n")
+                DictLength=Dict.length
+                var target=document.getElementById("numWordsLabel");
+                target.innerHTML=DictLength.toString()+" words loaded";
+                CorrectAudio=new Audio(CorrectAudioURL);
+                ErrorAudio=new Audio(ErrorAudioURL);
+                SkipAudio=new Audio(SkipAudioURL);
+                GameLoop();
+            }
+            function PageInit() {
+                document.title="Anagrams Game v"+Versi;
+                var target=document.getElementById("pageTitle");
+                target.innerHTML="Anagrams Game v"+Versi;
+                ChangeColor();
+                target=document.getElementById("MinWordLengthLabel");
+                target.innerHTML=MinWordLength.toString();
+                target=document.getElementById("MaxWordLengthLabel");
+                target.innerHTML=MaxWordLength.toString();
+                target=document.getElementById("scoreLabel");
+                target.innerHTML=Score.toFixed(3)+"/"+NumQuestions.toString()+"="+(Score/NumQuestions).toFixed(3);
+                target=document.getElementById("numWordsLabel");
+                target.innerHTML=DictURL+" loading...";
+                FetchDictionary();
+            }
+            window.onload=PageInit;
+        </script>
+        <style>
+        .button {
+            border: none;
+            padding: 12px 24px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+        .button2 {
+            font-size: 2.5em;
+            border: none;
+            padding: 20px 40px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+        .queryText {
+            font-size: 2.5em;
+            text-align: center;
+        }
+        .buttonText {
+            font-size: 1.5em;
+        }
+        .queryInput {
+            font-size: 2.5em;
+            width: 100%;
+        }
+        </style>
+    </head>
+    
+    <body id='body'>
+        <h1 id='pageTitle'>Anagrams Game</h1>
+        <h2>Instructions</h2>
+        <p>Guess the correct word composed of the given letters. You can also skip the question, or reshuffle the letters.</p>
+        <h2>Settings</h2>
+        <button id='muteButton' class="button" onclick="ChangeMute();">Mute</button>
+        <button id='colorButton' class="button" onclick="ChangeColor();">Change color</button> <br>
+        Word length min.
+        <button id='DecreaseMinWordLengthButton' class="button" onclick="DecreaseMinWordLength();">-</button>
+        <button id='MinWordLengthLabel' class="button"></button>
+        <button id='IncreaseMinWordLengthButton' class="button" onclick="IncreaseMinWordLength();">+</button>
+        max.
+        <button id='DecreaseMaxWordLengthButton' class="button" onclick="DecreaseMaxWordLength();">-</button>
+        <button id='MaxWordLengthLabel' class="button"></button>
+        <button id='IncreaseMaxWordLengthButton' class="button" onclick="IncreaseMaxWordLength();">+</button>
+        <p id='numWordsLabel'>loading...</p>
+        <h2>Letters</h2>
+        <p id='QueryLettersLabel' class="queryText"></p>
+        <h2>Your guess</h2>
+        <input type="text" id='guessInput' class="queryInput" onkeypress="GuessInputEnter(event)"><br>
+        <button id='skipButton' class="button2" onclick="Skip();">SKIP</button>
+        <button id='shuffleButton' class="button2" onclick="UserShuffle();">SHUFFLE</button>
+        <button id='submitButton' class="button2" onclick="SubmitGuess();"><strong>SUBMIT</strong></button>
+        
+        <h2>Score</h2>
+        <p id='scoreLabel' class="queryText"></p>
+        <h2>History</h2>
+        <table id='historyTable'>
+            <tr>
+                <th>Serial</th>
+                <th>Score</th>
+                <th>Letters</th>
+                <th>Guess</th>
+                <th>Result</th>
+            </tr>
+        </table>
+    </body>
+</html>
+
+
