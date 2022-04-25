@@ -2,7 +2,7 @@
 <html>
     <head>
         <script type="text/javascript">
-            var Versi="2.0.5";
+            var Versi="2.0.6";
             var BackColors=["#2F4F4F","#FFE4C4"];
             var ForeColors=["#DCDCDC","#000000"];
             var HighForeColors=["#FA8072","#800000"];
@@ -251,8 +251,10 @@
             }
             function PageInit() {
                 document.title="Anagrams Game v"+Versi;
+                var target=document.getElementById("bottomLabel");
+                target.innerHTML="Anagrams Game v"+Versi;
                 ChangeColor();
-                var target=document.getElementById("MinWordLengthLabel");
+                target=document.getElementById("MinWordLengthLabel");
                 target.innerHTML=MinWordLength.toString();
                 target=document.getElementById("MaxWordLengthLabel");
                 target.innerHTML=MaxWordLength.toString();
@@ -359,7 +361,8 @@
             max.
             <button id='DecreaseMaxWordLengthButton' class="button" onclick="DecreaseMaxWordLength();">-</button>
             <button id='MaxWordLengthLabel' class="button"></button>
-            <button id='IncreaseMaxWordLengthButton' class="button" onclick="IncreaseMaxWordLength();">+</button>
+            <button id='IncreaseMaxWordLengthButton' class="button" onclick="IncreaseMaxWordLength();">+</button><br>
+            <p id='bottomLabel'></p>
         </div>
     </body>
 </html>
