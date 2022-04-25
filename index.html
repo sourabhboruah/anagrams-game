@@ -240,7 +240,7 @@
                 target=document.getElementById("MaxWordLengthLabel");
                 target.innerHTML=MaxWordLength.toString();
                 target=document.getElementById("scoreLabel");
-                target.innerHTML=Score.toFixed(3)+"/"+NumQuestions.toString()+"="+(Score/NumQuestions).toFixed(3);
+                target.innerHTML=Score.toFixed(2)+"/"+NumQuestions.toString()+"="+(Score/NumQuestions).toFixed(3);
                 target=document.getElementById("numWordsLabel");
                 target.innerHTML=DictURL+" loading...";
                 FetchDictionary();
