@@ -47,7 +47,7 @@
                         Value=Value-Math.pow(2.718,-(PrevTime)/(1000*DecayTimes[wlen]))+Math.pow(2.718,-PrevTime2/(1000*DecayTimes[wlen]));
                         PrevTime=PrevTime2;
                         target=document.getElementById("ValueLabel");
-                        target.innerHTML=(Value-ValuePenalty).toFixed(3);
+                        target.innerHTML=(Value-ValuePenalty).toFixed(2);
                         await delay(10);
                     }while(Value>0.001);
                 }
@@ -71,7 +71,7 @@
                 var cell=row.insertCell(0);
                 cell.innerHTML=NumQuestions.toString();
                 var cell=row.insertCell(1);
-                cell.innerHTML=Score.toFixed(3);
+                cell.innerHTML=Score.toFixed(2);
                 var cell=row.insertCell(2);
                 cell.innerHTML=QueryLetters;
                 var cell=row.insertCell(3);
@@ -112,7 +112,7 @@
                                 CorrectAudio.play();
                             Score=Score+(Value-ValuePenalty);
                             target2=document.getElementById("scoreLabel");
-                            target2.innerHTML=Score.toFixed(3)+"/"+NumQuestions.toString()+"="+(100*Score/NumQuestions).toFixed(0)+"%";
+                            target2.innerHTML=Score.toFixed(2)+"/"+NumQuestions.toString()+"="+(100*Score/NumQuestions).toFixed(0)+"%";
                             UpdateTable(guess,"Correct");
                             target.value="";
                             target.focus();
@@ -248,13 +248,16 @@
             window.onload=PageInit;
         </script>
         <style>
+            .body2 {
+                font-size: 24px;
+            }
         .button {
             border: none;
             padding: 12px 24px;
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            font-size: 16px;
+            font-size: 24px;
             margin: 4px 2px;
             cursor: pointer;
         }
@@ -265,7 +268,7 @@
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            font-size: 16px;
+            font-size: 24px;
             margin: 4px 2px;
             cursor: pointer;
         }
@@ -283,7 +286,7 @@
         </style>
     </head>
     
-    <body id='body'>
+    <body id='body' class="body2">
         <h1 id='pageTitle'>Anagrams Game</h1>
         <h2>Settings</h2>
         <button id='muteButton' class="button" onclick="ChangeMute();">Mute</button>
