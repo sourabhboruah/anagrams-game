@@ -300,10 +300,16 @@
         <button id='DecreaseMaxWordLengthButton' class="button" onclick="DecreaseMaxWordLength();">-</button>
         <button id='MaxWordLengthLabel' class="button"></button>
         <button id='IncreaseMaxWordLengthButton' class="button" onclick="IncreaseMaxWordLength();">+</button>
-        <h2>Letters</h2>
-        <p id='QueryLettersLabel' class="queryText"></p>
-        <h2>Value</h2>
-        <p id='ValueLabel' class="queryText"></p>
+        <div class="row">
+            <div class="column">
+                <h2>Letters</h2>
+                <p id='QueryLettersLabel' class="queryText"></p>
+            </div>
+            <div class="column" style="text-align: right">
+                <h2>Value</h2>
+                <p id='ValueLabel' class="queryText"></p>
+            </div>
+        </div>
         <h2>Your guess</h2>
         <input type="text" id='guessInput' class="queryInput" onkeypress="GuessInputEnter(event)" autocomplete="off"><br><br>
         <button id='skipButton' class="button2" onclick="Skip();">SKIP</button>
