@@ -68,7 +68,7 @@
                         target=document.getElementById("ValueLabel");
                         target.innerHTML=(100*(Value-ValuePenalty)).toFixed(0);
                         await delay(10);
-                    }while(Value>0.001);
+                    }while(Value>0.01);
                 }
             }
             function ChangeMute() {
@@ -111,7 +111,7 @@
                 if(Loud)
                     SkipAudio.play();
                 var target2=document.getElementById("scoreLabel");
-                target2.innerHTML=(Score*100).toFixed(0)+"/"+NumQuestions.toString()+"<br>"+(100*Score/NumQuestions).toFixed(0)+"%";
+                target2.innerHTML=(100*Score/NumQuestions).toFixed(0)+"%";
                 UpdateTable("<i>"+CurrentWord+"</i>","Skipped");
                 var target=document.getElementById("guessInput");
                 target.value="";
@@ -131,7 +131,7 @@
                                 CorrectAudio.play();
                             Score=Score+(Value-ValuePenalty);
                             target2=document.getElementById("scoreLabel");
-                            target2.innerHTML=(Score*100).toFixed(0)+"/"+NumQuestions.toString()+"<br>"+(100*Score/NumQuestions).toFixed(0)+"%";
+                            target2.innerHTML=(100*Score/NumQuestions).toFixed(0)+"%";
                             UpdateTable(guess,"Correct");
                             target.value="";
                             target.focus();
