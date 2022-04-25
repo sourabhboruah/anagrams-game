@@ -93,7 +93,7 @@
                     SkipAudio.play();
                 var target2=document.getElementById("scoreLabel");
                 target2.innerHTML=Score.toFixed(3)+"/"+NumQuestions.toString()+"="+(100*Score/NumQuestions).toFixed(0)+"%";
-                UpdateTable("<s>"+CurrentWord+"</s>","Skipped");
+                UpdateTable("<i>"+CurrentWord+"</i>","Skipped");
                 var target=document.getElementById("guessInput");
                 target.value="";
                 target.focus();
@@ -327,5 +327,6 @@
         <p id='numWordsLabel'>loading...</p>
     </body>
 </html>
+
 
 
