@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script type="text/javascript">
+            var Versi="2.0.5";
+            var BackColors=["#2F4F4F","#FFE4C4"];
+            var ForeColors=["#DCDCDC","#000000"];
+            var HighForeColors=["#FA8072","#800000"];
+            var ButtonBackColors=["#778899","#DEB887"];
+            var SubmitButtonColor=["#3CB371","#00FF7F"];
+            var ColorIndex=0;
+            var MinWordLength=4;
+            var MaxWordLength=5;
+            var Dict=[];
+            var DictLength=0;
+            var DictURL="https://sourabhboruah.github.io/anagrams-game/popular.txt";
+            var QueryLetters="";
+            var CurrentWord="";
+            var ShuffleLimit=10000;
+            var Score=0.00;
+            var NumQuestions=0;
+            var Value=1.00;
+            var History=[];
+            var Loud=true;
+            var CorrectAudioURL="https://sourabhboruah.github.io/anagrams-game/correct.m4a";
+            var ErrorAudioURL="https://sourabhboruah.github.io/anagrams-game/error.m4a";
+            var SkipAudioURL="https://sourabhboruah.github.io/anagrams-game/skip.m4a";
+            var CorrectAudio;
+            var ErrorAudio;
+            var SkipAudio;
+            var QuestionStartTime=0.00;
+            var DecayTimes=[0.00,3.00,9.00,27.00,81.00,243.00];
+            var ValuePenalty=0.00;
+            var PrevTime=0.00;
+            var WideScreen=false;
+            function changeAR() {
+                WideScreen=!WideScreen;
+                var target=document.getElementById("aspectButton");
+                if(WideScreen) {
+                    target.innerHTML="Portrait";
+                    target2=document.getElementById("mainBox");
+                    target2.style.class="column";
+                    target2=document.getElementById("subBox");
+                    target2.style.class="column";
+                }
+                else {
+                    target.innerHTML="Widescreen";
+                    target2=document.getElementById("mainBox");
+                    target2.style.class="row";
+                    target2=document.getElementById("subBox");
+                    target2.style.class="row";
+                }
+            }
+            function delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+            async function DecayValue() {
+                if(QuestionStartTime!=0) {
+                    var wlen=0;
+                    if(CurrentWord.length>5)
+                        wlen=5
+                    else
+                        wlen=CurrentWord.length
+                    do {
+                        var PrevTime2=Date.now()-QuestionStartTime;
+                        Value=Value-Math.pow(2.718,-(PrevTime)/(1000*DecayTimes[wlen]))+Math.pow(2.718,-PrevTime2/(1000*DecayTimes[wlen]));
+                        PrevTime=PrevTime2;
+                        target=document.getElementById("ValueLabel");
+                        target.innerHTML=(100*(Value-ValuePenalty)).toFixed(0);
+                        await delay(10);
+                    }while(Value>0.001);
+                }
+            }
+            function ChangeMute() {
+                Loud=!Loud;
+                var target=document.getElementById("muteButton");
+                if(Loud)
+                    target.innerHTML="Mute";
+                else
+                    target.innerHTML="Unmute";
+            }
+            function GuessInputEnter(event) {
+                if (event.keyCode == 13) {
+                    SubmitGuess ();
+                }
+            }
+            function UpdateTable(str1,str2) {
+                var table=document.getElementById("historyTable");
+                var row=table.insertRow(1);
+                var cell=row.insertCell(0);
+                cell.innerHTML=NumQuestions.toString();
+                var cell=row.insertCell(1);
+                cell.innerHTML=(Score*100).toFixed(0);
+                var cell=row.insertCell(2);
+                cell.innerHTML=QueryLetters;
+                var cell=row.insertCell(3);
+                cell.innerHTML=str1;
+                var cell=row.insertCell(4);
+                cell.innerHTML=str2;
+            }
+            function UserShuffle() {
+                ShuffleWord()
+                var target=document.getElementById("QueryLettersLabel");
+                target.innerHTML=QueryLetters;
+                ValuePenalty=ValuePenalty+(Value-ValuePenalty)*0.1;
+                var target=document.getElementById("guessInput");
+                target.value="";
+                target.focus();
+            }
+            function Skip() {
+                if(Loud)
+                    SkipAudio.play();
+                var target2=document.getElementById("scoreLabel");
+                target2.innerHTML=(Score*100).toFixed(0)+"/"+NumQuestions.toString()+"<br>"+(100*Score/NumQuestions).toFixed(0)+"%";
+                UpdateTable("<i>"+CurrentWord+"</i>","Skipped");
+                var target=document.getElementById("guessInput");
+                target.value="";
+                target.focus();
+                GameLoop();
+            }
+            function SubmitGuess () {
+                var target=document.getElementById("guessInput");
+                var guess=target.value;
+                guess=guess.toLowerCase();
+                if(guess.length==QueryLetters.length) {
+                    var str1 = guess.split('').sort().join(''); 
+                    var str2 = QueryLetters.split('').sort().join('');
+                    if (str1===str2) {
+                        if(Dict.includes(guess)) {
+                            if(Loud)
+                                CorrectAudio.play();
+                            Score=Score+(Value-ValuePenalty);
+                            target2=document.getElementById("scoreLabel");
+                            target2.innerHTML=(Score*100).toFixed(0)+"/"+NumQuestions.toString()+"<br>"+(100*Score/NumQuestions).toFixed(0)+"%";
+                            UpdateTable(guess,"Correct");
+                            target.value="";
+                            target.focus();
+                            GameLoop();
+                        }
+                        else {
+                            if(Loud)
+                                ErrorAudio.play();
+                            ValuePenalty=ValuePenalty+(Value-ValuePenalty)*0.5;
+                            UpdateTable(guess,"Wrong");
+                            target.value="";
+                            target.focus();
+                        }
+                    }
+                    else {
+                        if(Loud)
+                            ErrorAudio.play();
+                        target.focus();
+                    }
+                }
+                else {
+                    if(Loud)
+                        ErrorAudio.play();
+                    target.focus();
+                }
+            }
+            function GameLoop() {
+                ChooseWord()
+                ShuffleWord()
+                target=document.getElementById("QueryLettersLabel");
+                target.innerHTML=QueryLetters;
+                Value=1.00;
+                ValuePenalty=0.00;
+                PrevTime=0.00;
+                QuestionStartTime=Date.now();
+                DecayValue();
+            }
+            function ChooseWord() {
+                var count=0;
+                var cond=true;
+                do {
+                    CurrentWord=Dict[Math.floor((DictLength+1)*Math.random())];
+                    count=count+1;
+                    cond=CurrentWord.length>=MinWordLength && CurrentWord.length<=MaxWordLength
+                } while(count<=ShuffleLimit && !cond);
+                NumQuestions++;
+            }
+            function ShuffleWord() {
+                QueryLetters=CurrentWord;
+                QueryLetters=QueryLetters.split("");
+                var count=0;
+                do {
+                    for (let i = QueryLetters.length - 1; i > 0; i--) {
+                        let j = Math.floor(Math.random() * (i + 1));
+                        [QueryLetters[i], QueryLetters[j]] = [QueryLetters[j], QueryLetters[i]];
+                    }
+                    count++;
+                } while(count<=ShuffleLimit && Dict.includes(QueryLetters));
+                QueryLetters=QueryLetters.join("")
+            }
+            function DecreaseMinWordLength() {
+                if(MinWordLength>2) MinWordLength=MinWordLength-1;
+                var target=document.getElementById("MinWordLengthLabel");
+                target.innerHTML=MinWordLength.toString();
+            }
+            function IncreaseMinWordLength() {
+                if(MinWordLength<MaxWordLength) MinWordLength=MinWordLength+1;
+                var target=document.getElementById("MinWordLengthLabel");
+                target.innerHTML=MinWordLength.toString();
+            }
+            function DecreaseMaxWordLength() {
+                if(MaxWordLength>MinWordLength) MaxWordLength=MaxWordLength-1;
+                var target=document.getElementById("MaxWordLengthLabel");
+                target.innerHTML=MaxWordLength.toString();
+            }
+            function IncreaseMaxWordLength() {
+                MaxWordLength=MaxWordLength+1;
+                var target=document.getElementById("MaxWordLengthLabel");
+                target.innerHTML=MaxWordLength.toString();
+            }
+            function ChangeColor(){
+                if(ColorIndex==0)
+                    ColorIndex=1;
+                else if(ColorIndex==1)
+                    ColorIndex=0;
+                var target=document.getElementById("body");
+                target.style.backgroundColor=BackColors[ColorIndex];
+                target.style.color=ForeColors[ColorIndex];
+                target=document.querySelectorAll("button");
+                for(var i=0;i<target.length;i++) {
+                    target[i].style.backgroundColor=ButtonBackColors[ColorIndex];
+                    target[i].style.color=ForeColors[ColorIndex];
+                }
+                target=document.getElementById("QueryLettersLabel");
+                target.style.color=HighForeColors[ColorIndex];
+                target=document.getElementById("submitButton");
+                target.style.backgroundColor=SubmitButtonColor[ColorIndex];
+                target=document.getElementById("guessInput");
+                target.style.color=HighForeColors[ColorIndex];
+                target.style.backgroundColor=BackColors[ColorIndex];
+                target=document.getElementById("scoreLabel");
+                target.style.color=HighForeColors[ColorIndex];
+                target=document.getElementById("ValueLabel");
+                target.style.color=HighForeColors[ColorIndex];
+            }
+            async function FetchDictionary() {
+                const response = await fetch(DictURL);
+                const data = await response.text();
+                Dict=data.split("\n")
+                DictLength=Dict.length
+                var target=document.getElementById("numWordsLabel");
+                target.innerHTML=DictLength.toString()+" words loaded";
+                CorrectAudio=new Audio(CorrectAudioURL);
+                ErrorAudio=new Audio(ErrorAudioURL);
+                SkipAudio=new Audio(SkipAudioURL);
+                GameLoop();
+            }
+            function PageInit() {
+                document.title="Anagrams Game v"+Versi;
+                ChangeColor();
+                var target=document.getElementById("MinWordLengthLabel");
+                target.innerHTML=MinWordLength.toString();
+                target=document.getElementById("MaxWordLengthLabel");
+                target.innerHTML=MaxWordLength.toString();
+                target=document.getElementById("scoreLabel");
+                target.innerHTML=(Score*100).toFixed(0)+"/"+NumQuestions.toString()+"<br>"+(Score/NumQuestions).toFixed(3);
+                target=document.getElementById("numWordsLabel");
+                target.innerHTML=DictURL+" loading...";
+                FetchDictionary();
+            }
+            window.onload=PageInit;
+        </script>
+        <style>
+            .button {
+                border: none;
+                padding: 0.5em 0.5em;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 1em;
+                margin: 0.1em 0.1em;
+                cursor: pointer;
+            }
+            .button2 {
+                font-size: 1.25em;
+                border: none;
+                padding: 0.5em 0.5em;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                margin: 0.1em 0.1em;
+                cursor: pointer;
+            }
+            .queryText {
+                font-size: 2.5em;
+                text-align: center;
+            }
+            .buttonText {
+                font-size: 1.5em;
+            }
+            .queryInput {
+                font-size: 2.5em;
+                width: 100%;
+            }
+            .scoreLabels {
+                font-size: 2em;
+                text-align: center;
+                width: 100%;
+            }
+        </style>
+    </head>
+    
+    <body id='body' style="font-size: 2em; line-height: 1;">
+        <div id='mainBox' style="height:100%; border:0.2em solid black; width: 100%; overflow: hidden;">
+            <div class="row">
+                <div style="float: left; width: 50%;">
+                    <h2 style="margin-top: 0.15em; margin-bottom: 0.15em; margin-left: 0.15em;">Letters</h2>
+                    <p id='QueryLettersLabel' class="queryText"></p>
+                </div>
+                <div style="float: left; width: 50%; text-align: right">
+                    <h2 style="margin-top: 0.15em; margin-bottom: 0.15em; margin-right: 0.15em;">Value</h2>
+                    <p id='ValueLabel' class="queryText"></p>
+                </div>
+            </div>
+            <div class="row">
+                <div style="float: left; width: 70%;">
+                    <h2 style="margin-top: 0.15em; margin-bottom: 0.15em; margin-left: 0.15em;">Your guess</h2>
+                    <input type="text" id='guessInput' onkeypress="GuessInputEnter(event)" autocomplete="off" style="margin-top: 0.15em; margin-bottom: 0.15em; margin-left: 0.15em; font-size: 2.5em; width: 100%;"><br><br>
+                    <div style="margin-top: 0.15em; margin-bottom: 0.15em; margin-left: 0.15em;">
+                        <button id='skipButton' class="button2" onclick="Skip();">SKIP</button>
+                        <button id='shuffleButton' class="button2" onclick="UserShuffle();">SHUFFLE</button>
+                        <button id='submitButton' class="button2" onclick="SubmitGuess();"><strong>SUBMIT</strong></button>
+                    </div>
+                    
+                </div>
+                <div style="float: left; width: 30%; text-align: right">
+                    <h2 style="margin-top: 0.15em; margin-bottom: 0.15em; margin-right: 0.15em;">Score</h2>
+                    <p id='scoreLabel' class="scoreLabels" style="line-height: 1.5;"></p>
+                </div>
+            </div>
+        </div>
+        <div id='subBox' style="border:0.2em solid black; width: 100%; overflow: hidden;">
+            <h2>History</h2>
+            <table id='historyTable' style='font-size: 100%'>
+                <tr>
+                    <th>Serial</th>
+                    <th>Score</th>
+                    <th>Letters</th>
+                    <th>Guess</th>
+                    <th>Result</th>
+                </tr>
+            </table>
+            <h2>Instructions</h2>
+            <p>Guess the correct word composed of the given letters. You can also skip the question, or reshuffle the letters.</p>
+                <p id='numWordsLabel'>loading...</p>
+            <h2>Settings</h2>
+            <button id='muteButton' class="button" onclick="ChangeMute();">Mute</button>
+            <button id='colorButton' class="button" onclick="ChangeColor();">Change color</button>
+            <button id='aspectButton' class="button" onclick="changeAR();">Widescreen</button> <br>
+            Word length min.
+            <button id='DecreaseMinWordLengthButton' class="button" onclick="DecreaseMinWordLength();">-</button>
+            <button id='MinWordLengthLabel' class="button"></button>
+            <button id='IncreaseMinWordLengthButton' class="button" onclick="IncreaseMinWordLength();">+</button>
+            max.
+            <button id='DecreaseMaxWordLengthButton' class="button" onclick="DecreaseMaxWordLength();">-</button>
+            <button id='MaxWordLengthLabel' class="button"></button>
+            <button id='IncreaseMaxWordLengthButton' class="button" onclick="IncreaseMaxWordLength();">+</button>
+        </div>
+    </body>
+</html>
+
+
+
