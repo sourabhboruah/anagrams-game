@@ -2,7 +2,7 @@
 <html>
     <head>
         <script type="text/javascript">
-            var Versi="2.0.4";
+            var Versi="2.0.5";
             var BackColors=["#2F4F4F","#FFE4C4"];
             var ForeColors=["#DCDCDC","#000000"];
             var HighForeColors=["#FA8072","#800000"];
@@ -13,7 +13,7 @@
             var MaxWordLength=5;
             var Dict=[];
             var DictLength=0;
-            var DictURL="https://raw.githubusercontent.com/dolph/dictionary/c65f04b0b5b27a981f437b940cf62fe71320d5ec/popular.txt";
+            var DictURL="https://sourabhboruah.github.io/anagrams-game/popular.txt";
             var QueryLetters="";
             var CurrentWord="";
             var ShuffleLimit=10000;
@@ -32,6 +32,25 @@
             var DecayTimes=[0.00,3.00,9.00,27.00,81.00,243.00];
             var ValuePenalty=0.00;
             var PrevTime=0.00;
+            var WideScreen=false;
+            function changeAR() {
+                WideScreen=!WideScreen;
+                var target=document.getElementById("aspectButton");
+                if(WideScreen) {
+                    target.innerHTML="Portrait";
+                    target2=document.getElementById("mainBox");
+                    target2.style.class="column";
+                    target2=document.getElementById("subBox");
+                    target2.style.class="column";
+                }
+                else {
+                    target.innerHTML="Widescreen";
+                    target2=document.getElementById("mainBox");
+                    target2.style.class="row";
+                    target2=document.getElementById("subBox");
+                    target2.style.class="row";
+                }
+            }
             function delay(ms) {
                 return new Promise(resolve => setTimeout(resolve, ms));
             }
@@ -47,7 +66,7 @@
                         Value=Value-Math.pow(2.718,-(PrevTime)/(1000*DecayTimes[wlen]))+Math.pow(2.718,-PrevTime2/(1000*DecayTimes[wlen]));
                         PrevTime=PrevTime2;
                         target=document.getElementById("ValueLabel");
-                        target.innerHTML=(Value-ValuePenalty).toFixed(2);
+                        target.innerHTML=(100*(Value-ValuePenalty)).toFixed(0);
                         await delay(10);
                     }while(Value>0.001);
                 }
@@ -71,7 +90,7 @@
                 var cell=row.insertCell(0);
                 cell.innerHTML=NumQuestions.toString();
                 var cell=row.insertCell(1);
-                cell.innerHTML=Score.toFixed(2);
+                cell.innerHTML=(Score*100).toFixed(0);
                 var cell=row.insertCell(2);
                 cell.innerHTML=QueryLetters;
                 var cell=row.insertCell(3);
@@ -92,7 +111,7 @@
                 if(Loud)
                     SkipAudio.play();
                 var target2=document.getElementById("scoreLabel");
-                target2.innerHTML=Score.toFixed(3)+"/"+NumQuestions.toString()+"="+(100*Score/NumQuestions).toFixed(0)+"%";
+                target2.innerHTML=(Score*100).toFixed(0)+"/"+NumQuestions.toString()+"<br>"+(100*Score/NumQuestions).toFixed(0)+"%";
                 UpdateTable("<i>"+CurrentWord+"</i>","Skipped");
                 var target=document.getElementById("guessInput");
                 target.value="";
@@ -112,7 +131,7 @@
                                 CorrectAudio.play();
                             Score=Score+(Value-ValuePenalty);
                             target2=document.getElementById("scoreLabel");
-                            target2.innerHTML=Score.toFixed(2)+"/"+NumQuestions.toString()+"="+(100*Score/NumQuestions).toFixed(0)+"%";
+                            target2.innerHTML=(Score*100).toFixed(0)+"/"+NumQuestions.toString()+"<br>"+(100*Score/NumQuestions).toFixed(0)+"%";
                             UpdateTable(guess,"Correct");
                             target.value="";
                             target.focus();
@@ -174,7 +193,7 @@
                 QueryLetters=QueryLetters.join("")
             }
             function DecreaseMinWordLength() {
-                if(MinWordLength>0) MinWordLength=MinWordLength-1;
+                if(MinWordLength>2) MinWordLength=MinWordLength-1;
                 var target=document.getElementById("MinWordLengthLabel");
                 target.innerHTML=MinWordLength.toString();
             }
@@ -232,15 +251,13 @@
             }
             function PageInit() {
                 document.title="Anagrams Game v"+Versi;
-                var target=document.getElementById("pageTitle");
-                target.innerHTML="Anagrams Game v"+Versi;
                 ChangeColor();
-                target=document.getElementById("MinWordLengthLabel");
+                var target=document.getElementById("MinWordLengthLabel");
                 target.innerHTML=MinWordLength.toString();
                 target=document.getElementById("MaxWordLengthLabel");
                 target.innerHTML=MaxWordLength.toString();
                 target=document.getElementById("scoreLabel");
-                target.innerHTML=Score.toFixed(2)+"/"+NumQuestions.toString()+"="+(Score/NumQuestions).toFixed(3);
+                target.innerHTML=(Score*100).toFixed(0)+"/"+NumQuestions.toString()+"<br>"+(Score/NumQuestions).toFixed(3);
                 target=document.getElementById("numWordsLabel");
                 target.innerHTML=DictURL+" loading...";
                 FetchDictionary();
@@ -249,91 +266,106 @@
         </script>
         <style>
             .body2 {
-                font-size: 30px;
-                margin-bottom: -6px;
+                font-size: 2em;
+                line-height: 1;
             }
             .column {
+                float: left;
                 width: 50%;
             }
-        .button {
-            border: none;
-            padding: 12px 24px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 32px;
-            margin: 4px 2px;
-            cursor: pointer;
-        }
-        .button2 {
-            font-size: 2.5em;
-            border: none;
-            padding: 25px 50px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 32px;
-            margin: 4px 2px;
-            cursor: pointer;
-        }
-        .queryText {
-            font-size: 2.5em;
-            text-align: center;
-        }
-        .buttonText {
-            font-size: 1.5em;
-        }
-        .queryInput {
-            font-size: 2.5em;
-            width: 100%;
-        }
+            .button {
+                border: none;
+                padding: 0.5em 0.5em;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 1em;
+                margin: 0.1em 0.1em;
+                cursor: pointer;
+            }
+            .button2 {
+                font-size: 1.25em;
+                border: none;
+                padding: 0.5em 0.5em;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                margin: 0.1em 0.1em;
+                cursor: pointer;
+            }
+            .queryText {
+                font-size: 2.5em;
+                text-align: center;
+            }
+            .buttonText {
+                font-size: 1.5em;
+            }
+            .queryInput {
+                font-size: 2.5em;
+                width: 100%;
+            }
+            .scoreLabels {
+                font-size: 2em;
+                width: 100%;
+            }
         </style>
     </head>
     
     <body id='body' class="body2">
-        <h1 id='pageTitle'>Anagrams Game</h1>
-        <h2>Settings</h2>
-        <button id='muteButton' class="button" onclick="ChangeMute();">Mute</button>
-        <button id='colorButton' class="button" onclick="ChangeColor();">Change color</button> <br>
-        Word length min.
-        <button id='DecreaseMinWordLengthButton' class="button" onclick="DecreaseMinWordLength();">-</button>
-        <button id='MinWordLengthLabel' class="button"></button>
-        <button id='IncreaseMinWordLengthButton' class="button" onclick="IncreaseMinWordLength();">+</button>
-        max.
-        <button id='DecreaseMaxWordLengthButton' class="button" onclick="DecreaseMaxWordLength();">-</button>
-        <button id='MaxWordLengthLabel' class="button"></button>
-        <button id='IncreaseMaxWordLengthButton' class="button" onclick="IncreaseMaxWordLength();">+</button>
-        <div class="row">
-            <div class="column">
-                <h2>Letters</h2>
-                <p id='QueryLettersLabel' class="queryText"></p>
+        <div id='mainBox' class="row">
+            <div class="row"><div class="row">
+                    <div class="column">
+                        <h2>Letters</h2>
+                        <p id='QueryLettersLabel' class="queryText"></p>
+                    </div>
+                    <div class="column" style="text-align: right">
+                        <h2>Value</h2>
+                        <p id='ValueLabel' class="queryText"></p>
+                    </div>
+                </div>
             </div>
-            <div class="column" style="text-align: right">
-                <h2>Value</h2>
-                <p id='ValueLabel' class="queryText"></p>
+            <div class="row">
+                <div class="column" style="width: 70%;">
+                    <h2>Your guess</h2>
+                    <input type="text" id='guessInput' class="queryInput" onkeypress="GuessInputEnter(event)" autocomplete="off"><br><br>
+                    <button id='skipButton' class="button2" onclick="Skip();">SKIP</button>
+                    <button id='shuffleButton' class="button2" onclick="UserShuffle();">SHUFFLE</button>
+                    <button id='submitButton' class="button2" onclick="SubmitGuess();"><strong>SUBMIT</strong></button>
+                    
+                </div>
+                <div class="column" style="width: 30%; text-align: right">
+                    <h2>Score</h2>
+                    <p id='scoreLabel' class="scoreLabels" style="line-height: 1.5;"></p>
+                </div>
             </div>
         </div>
-        <h2>Your guess</h2>
-        <input type="text" id='guessInput' class="queryInput" onkeypress="GuessInputEnter(event)" autocomplete="off"><br><br>
-        <button id='skipButton' class="button2" onclick="Skip();">SKIP</button>
-        <button id='shuffleButton' class="button2" onclick="UserShuffle();">SHUFFLE</button>
-        <button id='submitButton' class="button2" onclick="SubmitGuess();"><strong>SUBMIT</strong></button>
-        
-        <h2>Score</h2>
-        <p id='scoreLabel' class="queryText"></p>
-        <h2>History</h2>
-        <table id='historyTable' style='font-size: 150%'>
-            <tr>
-                <th>Serial</th>
-                <th>Score</th>
-                <th>Letters</th>
-                <th>Guess</th>
-                <th>Result</th>
-            </tr>
-        </table>
-        <h2>Instructions</h2>
-        <p>Guess the correct word composed of the given letters. You can also skip the question, or reshuffle the letters.</p>
-        <p id='numWordsLabel'>loading...</p>
+        <div id='subBox' class="row" style="width: 100%;">
+            <h2>History</h2>
+            <table id='historyTable' style='font-size: 100%'>
+                <tr>
+                    <th>Serial</th>
+                    <th>Score</th>
+                    <th>Letters</th>
+                    <th>Guess</th>
+                    <th>Result</th>
+                </tr>
+            </table>
+            <h2>Instructions</h2>
+            <p>Guess the correct word composed of the given letters. You can also skip the question, or reshuffle the letters.</p>
+                <p id='numWordsLabel'>loading...</p>
+            <h2>Settings</h2>
+            <button id='muteButton' class="button" onclick="ChangeMute();">Mute</button>
+            <button id='colorButton' class="button" onclick="ChangeColor();">Change color</button>
+            <button id='aspectButton' class="button" onclick="changeAR();">Widescreen</button> <br>
+            Word length min.
+            <button id='DecreaseMinWordLengthButton' class="button" onclick="DecreaseMinWordLength();">-</button>
+            <button id='MinWordLengthLabel' class="button"></button>
+            <button id='IncreaseMinWordLengthButton' class="button" onclick="IncreaseMinWordLength();">+</button>
+            max.
+            <button id='DecreaseMaxWordLengthButton' class="button" onclick="DecreaseMaxWordLength();">-</button>
+            <button id='MaxWordLengthLabel' class="button"></button>
+            <button id='IncreaseMaxWordLengthButton' class="button" onclick="IncreaseMaxWordLength();">+</button>
+        </div>
     </body>
 </html>
 
