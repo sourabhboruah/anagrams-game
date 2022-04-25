@@ -1,7 +1,6 @@
 silt
 lanced
 spore
-aa
 aardvark
 aargh
 aback
@@ -5374,7 +5373,6 @@ culinary
 culminating
 culmination
 culottes
-culpa
 culpability
 culpable
 cult
@@ -10243,7 +10241,6 @@ hangs
 hank
 hankering
 hankie
-hanks
 hanky
 hansom
 hap
