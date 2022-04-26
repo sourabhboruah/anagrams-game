@@ -16,7 +16,7 @@
             var DictURL="https://sourabhboruah.github.io/anagrams-game/popular.txt";
             var QueryLetters="";
             var CurrentWord="";
-            var ShuffleLimit=10000;
+            var ShuffleLimit=50000;
             var Score=0.00;
             var NumQuestions=0;
             var Value=1.00;
@@ -260,7 +260,7 @@
                 target=document.getElementById("MaxWordLengthLabel");
                 target.innerHTML=MaxWordLength.toString();
                 target=document.getElementById("scoreLabel");
-                target.innerHTML=(Score*100).toFixed(0)+"/"+NumQuestions.toString()+"<br>"+(Score/NumQuestions).toFixed(3);
+                target.innerHTML=(Score/NumQuestions).toFixed(3);
                 target=document.getElementById("numWordsLabel");
                 target.innerHTML=DictURL+" loading...";
                 FetchDictionary();
