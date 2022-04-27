@@ -2,7 +2,7 @@
 <html>
     <head>
         <script type="text/javascript">
-            var Versi="2.0.7";
+            var Versi="2.0.8";
             var BackColors=["#2F4F4F","#FFE4C4"];
             var ForeColors=["#DCDCDC","#000000"];
             var HighForeColors=["#FA8072","#800000"];
@@ -32,23 +32,15 @@
             var DecayTimes=[0.00,3.00,9.00,27.00,81.00,243.00];
             var ValuePenalty=0.00;
             var PrevTime=0.00;
-            var WideScreen=false;
-            function changeAR() {
-                WideScreen=!WideScreen;
-                var target=document.getElementById("aspectButton");
-                if(WideScreen) {
-                    target.innerHTML="Portrait";
-                    target2=document.getElementById("mainBox");
-                    target2.style.class="column";
-                    target2=document.getElementById("subBox");
-                    target2.style.class="column";
+            var RunTimer=true;
+            function StopTimer() {
+                RunTimer=!RunTimer;
+                var target=document.getElementById("timerButton");
+                if(RunTimer) {
+                    target.innerHTML="Stop timer";
                 }
                 else {
-                    target.innerHTML="Widescreen";
-                    target2=document.getElementById("mainBox");
-                    target2.style.class="row";
-                    target2=document.getElementById("subBox");
-                    target2.style.class="row";
+                    target.innerHTML="Start timer";
                 }
             }
             function delay(ms) {
@@ -68,7 +60,7 @@
                         target=document.getElementById("ValueLabel");
                         target.innerHTML=(100*(Value-ValuePenalty)).toFixed(0);
                         await delay(10);
-                    }while(Value-ValuePenalty>0.00);
+                    }while(Value-ValuePenalty>0.00 && RunTimer);
                     Skip();
                 }
             }
@@ -354,7 +346,7 @@
             <h2>Settings</h2>
             <button id='muteButton' class="button" onclick="ChangeMute();">Mute</button>
             <button id='colorButton' class="button" onclick="ChangeColor();">Change color</button>
-            <button id='aspectButton' class="button" onclick="changeAR();">Widescreen</button> <br>
+            <button id='timerButton' class="button" onclick="StopTimer();">Stop timer</button> <br>
             Word length min.
             <button id='DecreaseMinWordLengthButton' class="button" onclick="DecreaseMinWordLength();">-</button>
             <button id='MinWordLengthLabel' class="button"></button>
