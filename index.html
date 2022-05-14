@@ -2,7 +2,7 @@
 <html>
     <head>
         <script type="text/javascript">
-            var Versi="2.0.9";
+            var Versi="2.1.0";
             var BackColors=["#2F4F4F","#FFE4C4"];
             var ForeColors=["#DCDCDC","#000000"];
             var HighForeColors=["#FA8072","#800000"];
@@ -33,6 +33,23 @@
             var ValuePenalty=0.00;
             var PrevTime=0.00;
             var RunTimer=true;
+            var Portrait=true;
+            function ChangeAR() {
+                Portrait=!Portrait;
+                var target=document.getElementById("aspectButton");
+                var mainBoxElement=document.getElementById("mainBox");
+                var subBoxElement=document.getElementById("subBox");
+                if(Portrait) {
+                    target.innerHTML="Widescreen";
+                    mainBoxElement.style.width="100%";
+                    subBoxElement.style.width="100%";
+                }
+                else {
+                    target.innerHTML="Portrait";
+                    mainBoxElement.style.width="65%";
+                    subBoxElement.style.width="35%";
+                }
+            }
             function StopTimer() {
                 RunTimer=!RunTimer;
                 var target=document.getElementById("timerButton");
@@ -302,7 +319,7 @@
     </head>
     
     <body id='body' style="font-size: 2em; line-height: 1;">
-        <div id='mainBox' style="height:100%; width: 100%; overflow: hidden;">
+        <div id='mainBox' style="float: left; height:100%; width: 100%; overflow: hidden;">
             <div class="row">
                 <div style="float: left; width: 50%;">
                     <h2 style="margin-top: 0.15em; margin-bottom: 0.15em; margin-left: 0.15em;">Letters</h2>
@@ -330,7 +347,7 @@
                 </div>
             </div>
         </div>
-        <div id='subBox' style="width: 100%; overflow: hidden; font-size: 1em; line-height: 1;">
+        <div id='subBox' style="float: left; width: 100%; overflow: hidden; font-size: 1em; line-height: 1;">
             <h2>History</h2>
             <table id='historyTable' style='font-size: 100%'>
                 <tr>
@@ -347,7 +364,8 @@
             <h2>Settings</h2>
             <button id='muteButton' class="button" onclick="ChangeMute();">Mute</button>
             <button id='colorButton' class="button" onclick="ChangeColor();">Change color</button>
-            <button id='timerButton' class="button" onclick="StopTimer();">Stop timer</button> <br>
+            <button id='timerButton' class="button" onclick="StopTimer();">Stop timer</button>
+            <button id='aspectButton' class="button" onclick="ChangeAR();">Widescreen</button> <br>
             Word length min.
             <button id='DecreaseMinWordLengthButton' class="button" onclick="DecreaseMinWordLength();">-</button>
             <button id='MinWordLengthLabel' class="button"></button>
