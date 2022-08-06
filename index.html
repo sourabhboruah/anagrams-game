@@ -2,7 +2,9 @@
 <html>
     <head>
         <script type="text/javascript">
-            var Versi="2.1.0";
+            var GameName="Anagrams Game";
+            var GameURL="bit.ly/anagramsgame";
+            var Versi="3.0.0";
             var BackColors=["#2F4F4F","#FFE4C4"];
             var ForeColors=["#DCDCDC","#000000"];
             var HighForeColors=["#FA8072","#800000"];
@@ -15,6 +17,7 @@
             var DictLength=0;
             var DictURL="https://sourabhboruah.github.io/anagrams-game/popular.txt";
             var QueryLetters="";
+            var QueryLettersStatus=[];
             var CurrentWord="";
             var ShuffleLimit=50000;
             var Score=0.00;
@@ -34,6 +37,7 @@
             var PrevTime=0.00;
             var RunTimer=true;
             var Portrait=true;
+            var Guess=[];
             function ChangeAR() {
                 Portrait=!Portrait;
                 var target=document.getElementById("aspectButton");
@@ -110,13 +114,10 @@
                 cell.innerHTML=str2;
             }
             function UserShuffle() {
-                ShuffleWord()
-                var target=document.getElementById("QueryLettersLabel");
-                target.innerHTML=QueryLetters;
+                while(Guess.length>0) UnChooseLetter(0);
+                ShuffleWord();
+                ShowQuery();
                 ValuePenalty=ValuePenalty+(Value-ValuePenalty)*0.1;
-                var target=document.getElementById("guessInput");
-                target.value="";
-                target.focus();
             }
             function Skip() {
                 if(Loud)
@@ -124,15 +125,16 @@
                 var target2=document.getElementById("scoreLabel");
                 target2.innerHTML=(100*Score/NumQuestions).toFixed(0)+"%";
                 UpdateTable("<i>"+CurrentWord+"</i>","Skipped");
-                var target=document.getElementById("guessInput");
-                target.value="";
-                target.focus();
+                Guess=[];
+                ShowGuess();
                 GameLoop();
             }
             function SubmitGuess () {
-                var target=document.getElementById("guessInput");
-                var guess=target.value;
-                guess=guess.toLowerCase();
+                var guess="";
+                for(var i=0;i<Guess.length;i++) {
+                    guess=guess+QueryLetters[Guess[i]];
+                }
+                
                 if(guess.length==QueryLetters.length) {
                     var str1 = guess.split('').sort().join(''); 
                     var str2 = QueryLetters.split('').sort().join('');
@@ -141,11 +143,10 @@
                             if(Loud)
                                 CorrectAudio.play();
                             Score=Score+(Value-ValuePenalty);
-                            target2=document.getElementById("scoreLabel");
+                            var target2=document.getElementById("scoreLabel");
                             target2.innerHTML=(100*Score/NumQuestions).toFixed(0)+"%";
                             UpdateTable(guess,"Correct");
-                            target.value="";
-                            target.focus();
+                            while(Guess.length>0) UnChooseLetter(0);
                             GameLoop();
                         }
                         else {
@@ -153,27 +154,25 @@
                                 ErrorAudio.play();
                             ValuePenalty=ValuePenalty+(Value-ValuePenalty)*0.5;
                             UpdateTable(guess,"Wrong");
-                            target.value="";
-                            target.focus();
+                            while(Guess.length>0) UnChooseLetter(0);
                         }
                     }
                     else {
                         if(Loud)
                             ErrorAudio.play();
-                        target.focus();
+                        while(Guess.length>0) UnChooseLetter(0);
                     }
                 }
                 else {
                     if(Loud)
                         ErrorAudio.play();
-                    target.focus();
+                    while(Guess.length>0) UnChooseLetter(0);
                 }
             }
             function GameLoop() {
-                ChooseWord()
-                ShuffleWord()
-                target=document.getElementById("QueryLettersLabel");
-                target.innerHTML=QueryLetters;
+                ChooseWord();
+                ShuffleWord();
+                ShowQuery();
                 Value=1.00;
                 ValuePenalty=0.00;
                 PrevTime=0.00;
@@ -189,6 +188,8 @@
                     cond=CurrentWord.length>=MinWordLength && CurrentWord.length<=MaxWordLength
                 } while(count<=ShuffleLimit && !cond);
                 NumQuestions++;
+                QueryLettersStatus=[];
+                for(var i=0;i<CurrentWord.length;i++) QueryLettersStatus.push(0);
             }
             function ShuffleWord() {
                 QueryLetters=CurrentWord;
@@ -202,6 +203,24 @@
                     count++;
                 } while(count<=ShuffleLimit && Dict.includes(QueryLetters));
                 QueryLetters=QueryLetters.join("")
+            }
+            function ShowQuery() {
+                var target=document.getElementById("QueryLettersLabel");
+                var ihtml=""
+                for(var i=0;i<QueryLetters.length;i++) {
+                    ihtml=ihtml+"<button id='QueryLetter"+i.toString()+"' class=\"queryBoxes\" onclick=\"ChooseLetter("+i.toString()+");\">"+QueryLetters[i]+"</button>";
+                }
+                target.innerHTML=ihtml;
+                ColorQuery();
+            }
+            function ShowGuess() {
+                var target=document.getElementById("guessInput");
+                var ihtml=""
+                for(var i=0;i<Guess.length;i++) {
+                    ihtml=ihtml+"<button id='GuessLetter"+i.toString()+"' class=\"queryBoxes\" onclick=\"UnChooseLetter("+i.toString()+");\">"+QueryLetters[Guess[i]]+"</button>";
+                }
+                target.innerHTML=ihtml;
+                ColorGuess();
             }
             function DecreaseMinWordLength() {
                 if(MinWordLength>2) MinWordLength=MinWordLength-1;
@@ -223,7 +242,7 @@
                 var target=document.getElementById("MaxWordLengthLabel");
                 target.innerHTML=MaxWordLength.toString();
             }
-            function ChangeColor(){
+            function ChangeColor() {
                 if(ColorIndex==0)
                     ColorIndex=1;
                 else if(ColorIndex==1)
@@ -238,8 +257,6 @@
                 }
                 target=document.getElementById("QueryLettersLabel");
                 target.style.color=HighForeColors[ColorIndex];
-                target=document.getElementById("submitButton");
-                target.style.backgroundColor=SubmitButtonColor[ColorIndex];
                 target=document.getElementById("guessInput");
                 target.style.color=HighForeColors[ColorIndex];
                 target.style.backgroundColor=BackColors[ColorIndex];
@@ -247,6 +264,50 @@
                 target.style.color=HighForeColors[ColorIndex];
                 target=document.getElementById("ValueLabel");
                 target.style.color=HighForeColors[ColorIndex];
+                ColorQuery();
+                ColorGuess();
+            }
+            function ColorQuery() {
+                var ColorIndex2
+                if (ColorIndex==0) ColorIndex2=1;
+                else ColorIndex2=0;
+                for(var i=0;i<QueryLetters.length;i++) {
+                    if(QueryLettersStatus[i]==0) {
+                        target=document.getElementById("QueryLetter"+i.toString());
+                        target.style.color=HighForeColors[ColorIndex];
+                        target.style.backgroundColor=BackColors[ColorIndex];
+                    }
+                    else {
+                        target=document.getElementById("QueryLetter"+i.toString());
+                        target.style.color=HighForeColors[ColorIndex2];
+                        target.style.backgroundColor=BackColors[ColorIndex2];
+                    }
+                }
+            }
+            function ColorGuess() {
+                for(var i=0;i<Guess.length;i++) {
+                    target=document.getElementById("GuessLetter"+i.toString());
+                    target.style.color=HighForeColors[ColorIndex];
+                    target.style.backgroundColor=BackColors[ColorIndex];
+                }
+            }
+            function ChooseLetter(index) {
+                if (QueryLettersStatus[index]==0) {
+                    QueryLettersStatus[index]=1;
+                    Guess.push(index);
+                    ShowGuess();
+                    ShowQuery();
+                }
+                if (Guess.length==QueryLetters.length) SubmitGuess();
+            }
+            function UnChooseLetter(index) {
+                QueryLettersStatus[Guess[index]]=0;
+                for(var i=0;i<Guess.length+1;i++) {
+                    if(i!=index) Guess.push(Guess.shift());
+                    else Guess.shift();
+                }
+                ShowGuess();
+                ShowQuery();
             }
             async function FetchDictionary() {
                 const response = await fetch(DictURL);
@@ -261,9 +322,11 @@
                 GameLoop();
             }
             function PageInit() {
-                document.title="Anagrams Game v"+Versi;
-                var target=document.getElementById("bottomLabel");
-                target.innerHTML="Anagrams Game v"+Versi;
+                document.title=GameName+" v"+Versi;
+                var target=document.getElementById("topLabel");
+                target.innerHTML=GameURL;
+                target=document.getElementById("bottomLabel");
+                target.innerHTML=GameName+" v"+Versi;
                 ChangeColor();
                 target=document.getElementById("MinWordLengthLabel");
                 target.innerHTML=MinWordLength.toString();
@@ -298,9 +361,16 @@
                 margin: 0.1em 0.1em;
                 cursor: pointer;
             }
-            .queryText {
+            .queryBoxes {
                 font-size: 2.5em;
-                text-align: center;
+                text-align: left;
+                font-family: monospace;
+                text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+                border: 2px solid black ;
+                margin: 0.05em 0.05em;
+                display: inline;
+                padding: 0.1em 0.2em;
+                cursor: pointer;
             }
             .buttonText {
                 font-size: 1.5em;
@@ -311,33 +381,37 @@
             }
             .scoreLabels {
                 font-size: 2em;
-                text-align: center;
+                text-align: right;
                 width: 100%;
             }
         </style>
-        <link rel = "icon" href = "https://sourabhboruah.github.io/anagrams-game/anagrams-game-logo.2.png" type = "image/x-icon">
+        <link rel = "icon" href = "https://sourabhboruah.github.io/anagrams-game/anagrams-game-logo.3.png" type = "image/x-icon">
     </head>
     
     <body id='body' style="font-size: 2em; line-height: 1;">
+        <div class="header" style="text-align: center; ">
+            <img src="https://sourabhboruah.github.io/anagrams-game/Anagrams-Game-QR.png" style="height:2em; display: inline;" />
+            <h2 id='topLabel' style="text-align: center; display: inline;"></h2>
+        </div>
+        
         <div id='mainBox' style="float: left; height:100%; width: 98%; overflow: hidden; margin-left: 1%; margin-right: 1%">
             <div class="row">
                 <div style="float: left; width: 50%;">
                     <h2 style="margin-top: 0.15em; margin-bottom: 0.15em; margin-left: 0.15em;">Letters</h2>
-                    <p id='QueryLettersLabel' class="queryText"></p>
+                    <p id='QueryLettersLabel'></p>
                 </div>
                 <div style="float: left; width: 50%; text-align: right">
                     <h2 style="margin-top: 0.15em; margin-bottom: 0.15em; margin-right: 0.15em;">Value</h2>
-                    <p id='ValueLabel' class="queryText"></p>
+                    <p id='ValueLabel' class="scoreLabels"></p>
                 </div>
             </div>
             <div class="row">
                 <div style="float: left; width: 75%;">
                     <h2 style="margin-top: 0.15em; margin-bottom: 0.15em; margin-left: 0.15em;">Your guess</h2>
-                    <input type="text" id='guessInput' onkeypress="GuessInputEnter(event)" autocomplete="off" style="margin-top: 0.15em; margin-bottom: 0.15em; margin-left: 0.15em; font-size: 2.5em; width: 100%;"><br><br>
+                    <p id='guessInput' onkeypress="GuessInputEnter(event)" class="queryText"><br>
                     <div style="margin-top: 0.15em; margin-bottom: 0.15em; margin-left: 0.15em;">
                         <button id='skipButton' class="button2" onclick="Skip();">SKIP</button>
                         <button id='shuffleButton' class="button2" onclick="UserShuffle();">SHUFFLE</button>
-                        <button id='submitButton' class="button2" onclick="SubmitGuess();"><strong>SUBMIT</strong></button>
                     </div>
                     
                 </div>
@@ -358,6 +432,8 @@
                     <th>Result</th>
                 </tr>
             </table>
+        </div>
+        <div id='subBox2' style="float: left; width: 98%; overflow: hidden; font-size: 1em; line-height: 1; margin-left: 1%; margin-right: 1%">
             <h2>Instructions</h2>
             <p>Guess the correct word composed of the given letters. You can also skip the question, or reshuffle the letters.</p>
                 <p id='numWordsLabel'>loading...</p>
