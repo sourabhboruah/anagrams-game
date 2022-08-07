@@ -300,9 +300,15 @@
                 }
                 else {
                     QueryLettersStatus[index]=0;
-                    for(var i=0;i<Guess.length+1;i++) {
-                        if(Guess[i]!=index) Guess.push(Guess.shift());
-                        else Guess.shift();
+                    var i=0;
+                    while(Guess[0]!=index) {
+                        Guess.push(Guess.shift());
+                        i=i+1;
+                    }
+                    Guess.shift();
+                    while(i<Guess.length) {
+                        Guess.push(Guess.shift());
+                        i=i+1;
                     }
                     ShowGuess();
                     ShowQuery();
