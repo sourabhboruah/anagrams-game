@@ -386,6 +386,7 @@
                 display: inline;
                 padding: 0.1em 0.2em;
                 cursor: pointer;
+                touch-action: manipulation;
             }
             .buttonText {
                 font-size: 1.5em;
@@ -413,7 +414,7 @@
             <div class="row">
                 <div style="float: left; width: 75%;">
                     <h2 style="margin-top: 0.15em; margin-bottom: 0.15em; margin-left: 0.15em;">Your guess</h2>
-                    <p id='guessInput' onkeypress="GuessInputEnter(event)" class="queryText"><br>
+                    <p id='guessInput' onkeypress="GuessInputEnter(event)" style="touch-action: manipulation;"><br>
 
                     
                 </div>
@@ -425,7 +426,7 @@
             <div class="row">
                 <div style="float: left; width: 75%;">
                     <h2 style="margin-top: 0.15em; margin-bottom: 0.15em; margin-left: 0.15em;">Letters</h2>
-                    <p id='QueryLettersLabel'></p>
+                    <p id='QueryLettersLabel' style='touch-action: manipulation;'></p>
                 </div>
                 <div style="float: left; width: 25%; text-align: right">
                     <h2 style="margin-top: 0.15em; margin-bottom: 0.15em; margin-right: 0.15em;">Value</h2>
