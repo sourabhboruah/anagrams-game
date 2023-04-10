@@ -1,3 +1,8 @@
+plier
+gulp
+grit
+rinsed
+ranged
 rasp
 gash
 nooks
@@ -3338,7 +3343,6 @@ catholic
 cats
 catsup
 cattle
-catty
 catwalk
 caucus
 caught
@@ -8199,7 +8203,6 @@ fanfare
 fang
 fangs
 fanning
-fanny
 fans
 fantabulous
 fantasies
@@ -8613,7 +8616,6 @@ fixtures
 fizz
 fizzle
 fizzled
-flack
 flag
 flagged
 flagging
@@ -9190,13 +9192,6 @@ fry
 fryer
 frying
 fuchsia
-fuck
-fucked
-fucker
-fuckers
-fucking
-fucks
-fuckup
 fudge
 fudged
 fudging
@@ -10781,10 +10776,8 @@ homicide
 homicides
 homily
 homing
-homo
 homophobia
 homophobic
-homos
 homosexual
 homosexuality
 homosexuals
@@ -11032,7 +11025,6 @@ humour
 hump
 humpback
 humped
-humph
 humping
 humps
 hums
@@ -12497,7 +12489,6 @@ koi
 kooks
 kooky
 kosher
-koss
 kraft
 kremlin
 kris
@@ -14253,7 +14244,6 @@ molestation
 molested
 molester
 molesting
-moll
 mollie
 mollusk
 molly
@@ -14883,7 +14873,6 @@ nipple
 nipples
 nippy
 nirvana
-nite
 nitrogen
 nitroglycerin
 nitrous
@@ -16254,7 +16243,6 @@ phenomenal
 phenomenally
 phenomenon
 pheromones
-phew
 phi
 philandering
 philanthropist
@@ -19919,7 +19907,6 @@ shaves
 shaving
 shaw
 shawl
-shay
 she
 shea
 shear
@@ -20892,7 +20879,6 @@ sour
 source
 sources
 sourpuss
-sous
 souse
 south
 southbound
@@ -22900,16 +22886,12 @@ tiring
 tis
 tissue
 tissues
-tit
 titan
 titanic
 titanium
 titans
 title
 titles
-tits
-titties
-titty
 tizzy
 to
 toad
@@ -25217,7 +25199,6 @@ yeti
 yield
 yielding
 yields
-yikes
 yin
 yipe
 yippee
